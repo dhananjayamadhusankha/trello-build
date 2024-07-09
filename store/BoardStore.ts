@@ -11,8 +11,6 @@ interface BoardState {
   board: Board;
   getBoard: () => void;
   setBoardState: (board: Board) => void;
-  updateTodoInDB: (todos: Todo, columnId: TypedColumn) => void;
-  // deleteTask: (todos: Todo, columnId: TypedColumn, taskIndex: number) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -26,21 +24,4 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   setBoardState: (board) => set({ board }),
-
-  updateTodoInDB: async (todo, columnId) => {
-    await databases.updateDocument(databaseId!, collectionId!, todo.$id, {
-      title: todo.title,
-      status: columnId,
-    });
-  },
-  // deleteTask: async (todos, columnId, taskIndex) => {
-  //   const newColumns = new Map(get().board.columns)
-  //   newColumns.get(id)?.todos.splice(taskIndex,1);
-  //   set({board:{columns:newColumns}});
-
-  //   if(todo?.image){
-  //     await storage.deleteFile(todo.image.bucketId,todo.image.fileId)
-  //   }
-  //   await databases.deleteDocument(databaseId!, collectionId!, todos.$id)
-  // }
 }));
