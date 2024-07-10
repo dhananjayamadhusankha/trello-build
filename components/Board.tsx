@@ -6,11 +6,14 @@ import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import Column from "./Column";
 
 function Board() {
-  const [board, getBoard, setBoardState] = useBoardStore((state) => [
-    state.board,
-    state.getBoard,
-    state.setBoardState,
-  ]);
+  const [board, getBoard, setBoardState, updateTodoInDB] = useBoardStore(
+    (state) => [
+      state.board,
+      state.getBoard,
+      state.setBoardState,
+      state.updateTodoInDB,
+    ]
+  );
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -43,11 +46,9 @@ function Board() {
 
     // This step is need as he indexes are stored as numbers 0,1,2 etc. instead of id's with DND library
     const columns = Array.from(board.columns);
-    
+
     const startColumnIndex = columns[Number(source.droppableId)];
     const finishColumnIndex = columns[Number(destination.droppableId)];
-    console.log("startColumnIndex", startColumnIndex);
-    console.log("finishColumnIndex", finishColumnIndex);
 
     const startCol: Column = {
       id: startColumnIndex[0],
@@ -67,9 +68,8 @@ function Board() {
     const [todoMoved] = newTodos.splice(source.index, 1);
 
     if (startCol.id === finishCol.id) {
-      // same column task drag
       newTodos.splice(destination.index, 0, todoMoved);
-      const newCol = {
+      const newCol: Column = {
         id: startCol.id,
         todos: newTodos,
       };
@@ -77,23 +77,23 @@ function Board() {
       newColumns.set(startCol.id, newCol);
       setBoardState({ ...board, columns: newColumns });
     } else {
-      //  drag to another column
-      const finishTodos = Array.from(finishCol.todos);
+      const finishTodos = finishCol.todos;
+      console.log("finishTodos", finishTodos);
       finishTodos.splice(destination.index, 0, todoMoved);
-
-      const newCol = {
+      const startNewCol: Column = {
         id: startCol.id,
         todos: newTodos,
       };
-      const newColumns = new Map(board.columns);
-
-      newColumns.set(startCol.id, newCol);
-      newColumns.set(finishCol.id, {
+      const finishNewCol: Column = {
         id: finishCol.id,
         todos: finishTodos,
-      });
-    //   updateTodoInDB(todoMoved, finishCol.id);
-      setBoardState({ ...board, columns: newColumns });
+      };
+      const finishColumns = new Map(board.columns);
+      finishColumns.set(startCol.id, startNewCol);
+      finishColumns.set(finishCol.id, finishNewCol);
+
+      updateTodoInDB(todoMoved, finishCol.id);
+      setBoardState({ ...board, columns: finishColumns });
     }
   };
 

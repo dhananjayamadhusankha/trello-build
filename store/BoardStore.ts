@@ -1,5 +1,6 @@
 import { databases } from "@/appwrite";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
+import { title } from "process";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 // import type {} from '@redux-devtools/extension' // required for devtools typing
@@ -11,6 +12,7 @@ interface BoardState {
   board: Board;
   getBoard: () => void;
   setBoardState: (board: Board) => void;
+  updateTodoInDB: (todo: Todo, columnId: TypedColumn) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -24,4 +26,11 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   },
 
   setBoardState: (board) => set({ board }),
+
+  updateTodoInDB: async (todo, columnId) => {
+    databases.updateDocument(databaseId!, collectionId!, todo.$id, {
+      title: todo.title,
+      status: columnId,
+    });
+  },
 }));
