@@ -28,10 +28,6 @@ function Board() {
   const handleOnDragEnd = (result: DropResult) => {
     const { destination, source, type } = result;
 
-    // console.log(destination);
-    // console.log(source);
-    // console.log(type);
-
     // check if user dragged card outside of the board
     if (!destination) return;
 
@@ -106,7 +102,7 @@ function Board() {
       <Droppable droppableId={"board"} direction="horizontal" type="column">
         {(provided) => (
           <div
-            className="grid grid-cols-1 md:grid-cols-3 max-w-7xl mx-auto gap-5"
+            className="grid grid-cols-1 md:grid-cols-3 max-w-7xl mx-auto gap-5 px-5"
             {...provided.droppableProps}
             ref={provided.innerRef}
           >

@@ -1,12 +1,29 @@
 "use client";
 
+import { useBoardStore } from "@/store/BoardStore";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "react-avatar";
 
 function Header() {
+  const [board, searchString, setSearchString] = useBoardStore((state) => [
+    state.board,
+    state.searchString,
+    state.setSearchString,
+  ]);
+
+  const [loading, setLoading] = useState<boolean>(false)
+  const [suggestion, setSuggestion] = useState<string>("")
+
+  useEffect(() => {
+    if (board.columns.size === 0) return
+      setLoading(true)
+    
+  }, [board])
+  
+
   return (
     <header>
       <div className="flex flex-col md:flex-row p-5 items-center bg-gray-500/10 rounded-b-2xl">
@@ -26,6 +43,8 @@ function Header() {
               type="text"
               placeholder="Search"
               className="flex-1 outline-none"
+              value={searchString}
+              onChange={(e) => setSearchString(e.target.value)}
             ></input>
             <button type="submit" hidden>
               search
