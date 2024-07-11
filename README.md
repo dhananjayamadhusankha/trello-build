@@ -2,7 +2,7 @@
 
 ![alt text](https://github.com/dhananjayamadhusankha/trello-build/blob/master/images/Screenshot%202024-07-12%20at%2000.11.0.png?raw=true)
 
-A Next-JS 13.4 App powered with Appwrite(Database, Image Storage), Tailwind CSS for a slick user interface, and Zustand for state management.
+A Next-JS 14 App powered with Appwrite(Database, Image Storage), Tailwind CSS for a slick user interface, and Zustand for state management.
 
 ## Features
 
