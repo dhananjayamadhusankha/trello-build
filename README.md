@@ -1,4 +1,16 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Trello Clone
+
+![alt text](https://github.com/dhananjayamadhusankha/trello-build/blob/master/images/Screenshot%202024-07-12%20at%2000.11.0.png?raw=true)
+
+A Next-JS 13.4 App powered with Appwrite(Database, Image Storage), Tailwind CSS for a slick user interface, and Zustand for state management.
+
+## Features
+
+- __Add and Delete Tasks__: Allows users to create and remove tasks seamlessly.
+- __Drag and Drop Functionality__: Implements smooth drag-and-drop for task management across different boards.
+- __Search Functionality__: Enables quick search and filtering of tasks for easy access.
+
+
 
 ## Getting Started
 
@@ -34,3 +46,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
