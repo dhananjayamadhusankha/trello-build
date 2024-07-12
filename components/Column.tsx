@@ -2,6 +2,7 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import TodoCard from "./TodoCard";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useBoardStore } from "@/store/BoardStore";
+import { useModalStore } from "@/store/modalStore";
 
 type Props = {
   id: TypedColumn;
@@ -17,6 +18,10 @@ const idToColumnText: { [key in TypedColumn]: string } = {
 
 function Column({ id, index, todos }: Props) {
   const [searchString] = useBoardStore((state) => [state.searchString]);
+  const [isOpen, openModal] = useModalStore((state) => [
+    state.isOpen,
+    state.openModal,
+  ]);
   return (
     <Draggable draggableId={id} index={index}>
       {(provided) => (
@@ -80,7 +85,7 @@ function Column({ id, index, todos }: Props) {
                   {provided.placeholder}
 
                   <div className="flex justify-end items-end p-2">
-                    <button className=" text-green-500 hover:text-green-600">
+                    <button className=" text-green-500 hover:text-green-600" onClick={openModal}>
                       <PlusCircleIcon className="h-7 w-7" />
                     </button>
                   </div>
