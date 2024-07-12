@@ -11,10 +11,15 @@ interface BoardState {
   getBoard: () => void;
   setBoardState: (board: Board) => void;
   updateTodoInDB: (todo: Todo, columnId: TypedColumn) => void;
+  deleteTask: (taskIndex: number, todo: Todo, id: TypedColumn) => void;
 
   searchString: string;
   setSearchString: (searchString: string) => void;
-  deleteTask: (taskIndex: number, todo: Todo, id: TypedColumn) => void;
+
+  newTaskInput: string;
+  newTaskType: TypedColumn;
+  setnewTaskInput: (input: string) => void;
+  setNewTaskType: (columnId: TypedColumn) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -53,4 +58,9 @@ export const useBoardStore = create<BoardState>((set, get) => ({
 
     databases.deleteDocument(databaseId!, collectionId!, todo.$id);
   },
+
+  newTaskInput: "",
+  newTaskType: "todo",
+  setnewTaskInput: (input) => set({ newTaskInput: input }),
+  setNewTaskType: (columnId) => set({ newTaskType: columnId }),
 }));
