@@ -1,5 +1,6 @@
-import { databases, storage } from "@/appwrite";
+import { databases, ID, storage } from "@/appwrite";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
+import imageUpload from "@/lib/uploadImage";
 import { title } from "process";
 import { create } from "zustand";
 
@@ -20,6 +21,11 @@ interface BoardState {
   newTaskType: TypedColumn;
   setnewTaskInput: (input: string) => void;
   setNewTaskType: (columnId: TypedColumn) => void;
+
+  image: File | null;
+  setImage: (image: File | null) => void;
+
+  addTask: (columnId: TypedColumn, todo: string, image?: File | null) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -63,4 +69,59 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   newTaskType: "todo",
   setnewTaskInput: (input) => set({ newTaskInput: input }),
   setNewTaskType: (columnId) => set({ newTaskType: columnId }),
+
+  image: null,
+  setImage: (image: File | null) => set({ image }),
+
+  addTask: async (columnId: TypedColumn, todo: string, image?: File | null) => {
+    let file: Image | undefined;
+
+    if (image) {
+      const fileUploaded = await imageUpload(image);
+
+      if (fileUploaded) {
+        file = {
+          bucketId: fileUploaded.bucketId,
+          fileId: fileUploaded.$id,
+        };
+      }
+    }
+    const { $id } = await databases.createDocument(
+      databaseId!,
+      collectionId!,
+      ID.unique(),
+      {
+        title: todo,
+        status: columnId,
+        ...(file && { image: JSON.stringify(file) }),
+      }
+    );
+
+    set({ newTaskInput: "" });
+
+    set((state) => {
+      const newColumns = new Map(state.board.columns);
+      const newTodo: Todo = {
+        $id,
+        $createdAt: new Date().toISOString(),
+        status: columnId,
+        title: todo,
+        ...(file && { image: file }),
+      };
+
+      const column = newColumns.get(columnId);
+
+      if (!column) {
+        newColumns.set(columnId, {
+          id: columnId,
+          todos: [newTodo],
+        });
+      } else {
+        newColumns.get(columnId)?.todos.push(newTodo);
+      }
+      return {
+        board: { columns: newColumns },
+      };
+    });
+  },
 }));
