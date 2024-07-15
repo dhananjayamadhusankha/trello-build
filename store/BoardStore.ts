@@ -1,7 +1,6 @@
 import { databases, ID, storage } from "@/appwrite";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
 import imageUpload from "@/lib/uploadImage";
-import { title } from "process";
 import { create } from "zustand";
 
 const databaseId = process.env.NEXT_PUBLIC_DATABASE_ID;

@@ -9,7 +9,7 @@ const imageUpload = async (file: File) => {
     console.log("No set bucketId")
   }
 
-  const fileUploaded = await storage.createFile(bucketId!, ID.unique(), file);
+  const fileUploaded = await storage.createFile("666309720019541da5f9", ID.unique(), file);
 
   return fileUploaded
 };
