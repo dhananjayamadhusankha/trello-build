@@ -4,6 +4,8 @@ import { useBoardStore } from "@/store/BoardStore";
 import { useEffect, useRef } from "react";
 import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import Column from "./Column";
+import { TailSpin } from "react-loader-spinner";
+import ConfirmModal from "./ConfirmModal";
 
 function Board() {
   const [board, getBoard, setBoardState, updateTodoInDB] = useBoardStore(
@@ -14,6 +16,7 @@ function Board() {
       state.updateTodoInDB,
     ]
   );
+
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -93,11 +96,26 @@ function Board() {
     }
   };
 
-  if (!board || !board.columns.size) {
-    return <div>Loading...</div>;
+ 
+  if (!board.columns.size) {
+    return (
+      <div className="flex justify-center mx-auto mt-56">
+        <TailSpin
+          visible={true}
+          height="80"
+          width="80"
+          color="#0055d1"
+          ariaLabel="tail-spin-loading"
+          radius="1"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
+    );
   }
 
   return (
+    <>
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <Droppable droppableId={"board"} direction="horizontal" type="column">
         {(provided) => (
@@ -113,6 +131,8 @@ function Board() {
         )}
       </Droppable>
     </DragDropContext>
+        <ConfirmModal />
+    </>
   );
 }
 

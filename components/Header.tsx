@@ -61,13 +61,13 @@ function Header() {
       </div>
 
       <div className="flex items-center px-5 py-2 md:py-5 justify-center">
-        <p className="text-[#0055d1] italic  shadow-xl text-sm font-light p-5 pr-5 bg-white rounded-xl w-fit max-w-3xl">
+        {/* <p className="text-[#0055d1] italic  shadow-xl text-sm font-light p-5 pr-5 bg-white rounded-xl w-fit max-w-3xl">
           <UserCircleIcon
             fill="#0055d1"
             className="w-10 h-10 mr-1 inline-block text-white"
           />
           GPT summersizing your task...
-        </p>
+        </p> */}
       </div>
     </header>
   );
