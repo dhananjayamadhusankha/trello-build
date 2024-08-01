@@ -1,7 +1,9 @@
+"use client";
+
 import { useBoardStore } from "@/store/BoardStore";
 import getUrl from "@/lib/getUrl";
 import { XCircleIcon } from "@heroicons/react/24/solid";
-import { PencilSquareIcon } from "@heroicons/react/16/solid";
+import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
@@ -9,9 +11,8 @@ import {
 } from "react-beautiful-dnd";
 import Image from "next/image";
 import { useEditModalStore } from "@/store/EditModalStore";
-import EditModal from "./EditModal";
-import ConfirmModal from "./ConfirmModal";
 import { useModalStore } from "@/store/ModalStore";
+import EditModal from "./EditModal";
 
 type Props = {
   id: TypedColumn;
@@ -30,10 +31,13 @@ function TodoCard({
   draggableProps,
   dragHandleProps,
 }: Props) {
-  const deleteTask = useBoardStore((state) => state.deleteTask);
-  const [openConfirmModal] = useModalStore((state) => ([state.openConfirmModal]))
-  const [openModal,setEditingTodo] = useEditModalStore((state) => [state.openModal, state.setEditingTodo]);
-  
+  const [openModal, setEditingTodo] = useEditModalStore((state) => [
+    state.openModal,
+    state.setEditingTodo,
+  ]);
+
+  const openConfirmModal = useModalStore((state) => state.openConfirmModal);
+  const setTaskToDelete = useModalStore((state) => state.setTaskToDelete);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,13 +55,19 @@ function TodoCard({
 
   const openEdit = () => {
     openModal();
-    setEditingTodo({ todo, columnId: id, taskIndex: index, newTaskType:todo.status, image: null });
+    setEditingTodo({
+      todo,
+      columnId: id,
+      taskIndex: index,
+      newTaskType: todo.status,
+      image: null,
+    });
   };
 
-  const hangleDeleteTask = () =>{
-    console.log("Hanging delete")
-    openConfirmModal()
-  }
+  const handleDeleteTask = () => {
+    setTaskToDelete({ todo, index, id });
+    openConfirmModal();
+  };
 
   return (
     <div
@@ -77,8 +87,7 @@ function TodoCard({
             <PencilSquareIcon className="ml-5 h-7 w-7" />
           </button>
           <button
-            onClick={hangleDeleteTask}
-            // onClick={() => deleteTask(index, todo, id)}
+            onClick={handleDeleteTask}
             className="text-red-500 hover:text-red-600"
           >
             <XCircleIcon className="ml-3 h-7 w-7" />
@@ -97,9 +106,6 @@ function TodoCard({
           />
         </div>
       )}
-
-      <ConfirmModal index={index} id={id} todo={todo} />
-
       <EditModal todo={todo} />
     </div>
   );

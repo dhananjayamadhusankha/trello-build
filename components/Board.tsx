@@ -5,8 +5,7 @@ import { useEffect, useRef } from "react";
 import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import Column from "./Column";
 import { TailSpin } from "react-loader-spinner";
-import { useEditModalStore } from "@/store/EditModalStore";
-import EditModal from "./EditModal";
+import ConfirmModal from "./ConfirmModal";
 
 function Board() {
   const [board, getBoard, setBoardState, updateTodoInDB] = useBoardStore(
@@ -18,8 +17,6 @@ function Board() {
     ]
   );
 
-  const isOpen = useEditModalStore((state) => state.isOpen);
-  
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -118,6 +115,7 @@ function Board() {
   }
 
   return (
+    <>
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <Droppable droppableId={"board"} direction="horizontal" type="column">
         {(provided) => (
@@ -129,12 +127,12 @@ function Board() {
             {Array.from(board.columns.entries()).map(([id, column], index) => (
               <Column key={id} id={id} todos={column.todos} index={index} />
             ))}
-      {/* {isOpen && <EditModal />} */}
           </div>
         )}
       </Droppable>
     </DragDropContext>
-
+        <ConfirmModal />
+    </>
   );
 }
 

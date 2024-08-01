@@ -12,7 +12,7 @@ interface BoardState {
   getBoard: () => void;
   setBoardState: (board: Board) => void;
   updateTodoInDB: (todo: Todo, columnId: TypedColumn) => void;
-  tasks: { [key: string]: Todo[] };
+  // tasks: { [key: string]: Todo[] };
 
   deleteTask: (taskIndex: number, todo: Todo, id: TypedColumn) => void;
 
@@ -73,28 +73,40 @@ export const useBoardStore = create<BoardState>((set, get) => ({
     }
   },
 
-  tasks: {},
+  // tasks: {},
 
   deleteTask: async (taskIndex: number, todo: Todo, id: TypedColumn) => {
     const toastId = toast.loading("Loading...");
 
     try {
       const newColumns = new Map(get().board.columns);
+      const newColumn = newColumns.get(id);
+      if (!newColumn) return;
 
-      newColumns.get(id)?.todos.splice(taskIndex, 1);
+      // Update the column's todos
+      const newTodos = newColumn.todos.slice();
+      newTodos.splice(taskIndex, 1);
+      newColumn.todos = newTodos;
+
+      newColumns.set(id, newColumn);
+
       set({ board: { columns: newColumns } });
 
+      // Delete the document
+      await databases.deleteDocument(databaseId!, collectionId!, todo.$id);
+
+      // Delete image if present
       if (todo.image) {
         await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
       }
 
-      await databases.deleteDocument(databaseId!, collectionId!, todo.$id);
       toast.success("Task deleted successfully", { id: toastId });
     } catch (error) {
       console.error("Failed to delete task:", error);
       toast.error("Failed to delete task", { id: toastId });
     }
   },
+  
 
   newTaskInput: "",
   newTaskType: "todo",
