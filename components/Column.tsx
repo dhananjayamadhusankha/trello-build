@@ -2,7 +2,7 @@ import { Draggable, Droppable } from "react-beautiful-dnd";
 import TodoCard from "./TodoCard";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
 import { useBoardStore } from "@/store/BoardStore";
-import { useModalStore } from "@/store/modalStore";
+import { useModalStore } from "@/store/ModalStore";
 
 type Props = {
   id: TypedColumn;
@@ -17,9 +17,9 @@ const idToColumnText: { [key in TypedColumn]: string } = {
 };
 
 function Column({ id, index, todos }: Props) {
-  const [searchString, setNewTaskType] = useBoardStore((state) => [
+  const [searchString, setNewTaskType, board] = useBoardStore((state) => [
     state.searchString,
-    state.setNewTaskType,
+    state.setNewTaskType,state.board
   ]);
   const [openModal] = useModalStore((state) => [state.openModal]);
 
@@ -27,6 +27,7 @@ function Column({ id, index, todos }: Props) {
     setNewTaskType(id);
     openModal();
   };
+  
 
   return (
     <Draggable draggableId={id} index={index}>

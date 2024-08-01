@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Modal from "@/components/Modal";
+import { Toaster } from "react-hot-toast";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,6 +22,7 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
         <Modal />
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );

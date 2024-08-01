@@ -1,7 +1,7 @@
 "use client";
 
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { useModalStore } from "@/store/modalStore";
+import { useModalStore } from "@/store/ModalStore";
 import { useBoardStore } from "@/store/BoardStore";
 import TaskTypeRadioGroup from "./TaskTypeRadioGroup";
 import { FormEvent, useRef } from "react";
@@ -39,7 +39,7 @@ function Modal() {
     <>
       <Dialog
         open={isOpen}
-        onClose={() => closeModal}
+        onClose={closeModal}
         transition
         as="form"
         onSubmit={handleSubmit}
@@ -91,13 +91,20 @@ function Modal() {
             />
           </div>
 
-          <div>
+          <div className="flex space-x-4 justify-between">
             <button
               type="submit"
               disabled={!newTaskInput}
               className="inline-flex justify-center rounded-md bg-blue-100 w-full p-5 border border-transparent text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed"
             >
               Add Task
+            </button>
+            <button
+              type="button"
+              onClick={() => closeModal()}
+              className="inline-flex justify-center rounded-md bg-red-100 w-full p-5 border border-transparent text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed"
+            >
+              Close
             </button>
           </div>
         </DialogPanel>

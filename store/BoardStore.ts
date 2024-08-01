@@ -1,6 +1,7 @@
 import { databases, ID, storage } from "@/appwrite";
 import { getTodosGroupedByColumn } from "@/lib/getTodosGroupedByColumn";
 import imageUpload from "@/lib/uploadImage";
+import toast from "react-hot-toast";
 import { create } from "zustand";
 
 const databaseId = process.env.NEXT_PUBLIC_DATABASE_ID;
@@ -11,6 +12,8 @@ interface BoardState {
   getBoard: () => void;
   setBoardState: (board: Board) => void;
   updateTodoInDB: (todo: Todo, columnId: TypedColumn) => void;
+  tasks: { [key: string]: Todo[] };
+
   deleteTask: (taskIndex: number, todo: Todo, id: TypedColumn) => void;
 
   searchString: string;
@@ -25,6 +28,14 @@ interface BoardState {
   setImage: (image: File | null) => void;
 
   addTask: (columnId: TypedColumn, todo: string, image?: File | null) => void;
+  editTask: (
+    columnId: TypedColumn,
+    todo: Todo,
+    taskIndex: number,
+    title: string,
+    newTaskType: TypedColumn,
+    image?: File | null
+  ) => void;
 }
 
 export const useBoardStore = create<BoardState>((set, get) => ({
@@ -36,32 +47,53 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   setSearchString: (searchString: string) => set({ searchString }),
 
   getBoard: async () => {
-    const board = await getTodosGroupedByColumn();
-    set({ board });
+    try {
+      const board = await getTodosGroupedByColumn();
+      set({ board });
+    } catch (error) {
+      console.error("Failed to fetch board data:", error);
+      toast.error("Failed to fetch board data");
+    }
   },
 
   setBoardState: (board) => set({ board }),
 
   updateTodoInDB: async (todo, columnId) => {
-    databases.updateDocument(databaseId!, collectionId!, todo.$id, {
-      title: todo.title,
-      status: columnId,
-    });
+    const toastId = toast.loading("Loading...");
+
+    try {
+      await databases.updateDocument(databaseId!, collectionId!, todo.$id, {
+        title: todo.title,
+        status: columnId,
+      });
+      toast.success("Task updated successfully", { id: toastId });
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      toast.error("Failed to update task", { id: toastId });
+    }
   },
 
+  tasks: {},
+
   deleteTask: async (taskIndex: number, todo: Todo, id: TypedColumn) => {
-    const newColumns = new Map(get().board.columns);
+    const toastId = toast.loading("Loading...");
 
-    // delete todoId item from newcolumns
-    newColumns.get(id)?.todos.splice(taskIndex, 1);
+    try {
+      const newColumns = new Map(get().board.columns);
 
-    set({ board: { columns: newColumns } });
+      newColumns.get(id)?.todos.splice(taskIndex, 1);
+      set({ board: { columns: newColumns } });
 
-    if (todo.image) {
-      await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
+      if (todo.image) {
+        await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
+      }
+
+      await databases.deleteDocument(databaseId!, collectionId!, todo.$id);
+      toast.success("Task deleted successfully", { id: toastId });
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      toast.error("Failed to delete task", { id: toastId });
     }
-
-    databases.deleteDocument(databaseId!, collectionId!, todo.$id);
   },
 
   newTaskInput: "",
@@ -73,54 +105,135 @@ export const useBoardStore = create<BoardState>((set, get) => ({
   setImage: (image: File | null) => set({ image }),
 
   addTask: async (columnId: TypedColumn, todo: string, image?: File | null) => {
-    let file: Image | undefined;
+    const toastId = toast.loading("Loading...");
 
-    if (image) {
-      const fileUploaded = await imageUpload(image);
+    try {
+      let file: Image | undefined;
 
-      if (fileUploaded) {
-        file = {
-          bucketId: fileUploaded.bucketId,
-          fileId: fileUploaded.$id,
+      if (image) {
+        const fileUploaded = await imageUpload(image);
+        if (fileUploaded) {
+          file = {
+            bucketId: fileUploaded.bucketId,
+            fileId: fileUploaded.$id,
+          };
+        }
+      }
+
+      const { $id } = await databases.createDocument(
+        databaseId!,
+        collectionId!,
+        ID.unique(),
+        {
+          title: todo,
+          status: columnId,
+          ...(file && { image: JSON.stringify(file) }),
+        }
+      );
+
+      set({ newTaskInput: "" });
+
+      set((state) => {
+        const newColumns = new Map(state.board.columns);
+        const newTodo: Todo = {
+          $id,
+          $createdAt: new Date().toISOString(),
+          status: columnId,
+          title: todo,
+          ...(file && { image: file }),
         };
-      }
+
+        const column = newColumns.get(columnId);
+
+        if (!column) {
+          newColumns.set(columnId, {
+            id: columnId,
+            todos: [newTodo],
+          });
+        } else {
+          newColumns.get(columnId)?.todos.push(newTodo);
+        }
+        return {
+          board: { columns: newColumns },
+        };
+      });
+
+      toast.success("Task added successfully", { id: toastId });
+    } catch (error) {
+      console.error("Failed to add task:", error);
+      toast.error("Failed to add task", { id: toastId });
     }
-    const { $id } = await databases.createDocument(
-      databaseId!,
-      collectionId!,
-      ID.unique(),
-      {
-        title: todo,
-        status: columnId,
-        ...(file && { image: JSON.stringify(file) }),
+  },
+
+  editTask: async (
+    columnId: TypedColumn,
+    todo: Todo,
+    taskIndex: number,
+    title: string,
+    newTaskType: TypedColumn,
+    image?: File | null
+  ) => {
+    console.log("Before editTask:", get().board.columns);
+    const toastId = toast.loading("Loading...");
+
+    try {
+      let file: Image | undefined;
+
+      if (image === null && todo.image) {
+        await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
+      } else if (image) {
+        if (todo.image) {
+          await storage.deleteFile(todo.image.bucketId, todo.image.fileId);
+        }
+        const fileUploaded = await imageUpload(image);
+        if (fileUploaded) {
+          file = {
+            bucketId: fileUploaded.bucketId,
+            fileId: fileUploaded.$id,
+          };
+        }
       }
-    );
 
-    set({ newTaskInput: "" });
-
-    set((state) => {
-      const newColumns = new Map(state.board.columns);
-      const newTodo: Todo = {
-        $id,
-        $createdAt: new Date().toISOString(),
-        status: columnId,
-        title: todo,
-        ...(file && { image: file }),
+      const updatedTodo: Partial<Todo> = {
+        title,
+        status: newTaskType,
+        image: file !== undefined ? file : null,
       };
 
-      const column = newColumns.get(columnId);
+      await databases.updateDocument(databaseId!, collectionId!, todo.$id, {
+        title,
+        status: newTaskType,
+        image: file !== undefined ? JSON.stringify(file) : null,
+      });
 
-      if (!column) {
-        newColumns.set(columnId, {
-          id: columnId,
-          todos: [newTodo],
-        });
-      } else {
-        newColumns.get(columnId)?.todos.push(newTodo);
-      }
-      return {
-        board: { columns: newColumns },
-      };
-    });
+      set((state) => {
+        const newColumns = new Map(state.board.columns);
+        const column = newColumns.get(columnId);
+
+        if (column) {
+          // Update the existing task instead of adding a new one
+          column.todos[taskIndex] = {
+            ...column.todos[taskIndex],
+            ...updatedTodo,
+          };
+        } else {
+          // If the column does not exist, create a new one (this is a fallback, ideally not needed)
+          newColumns.set(columnId, {
+            id: columnId,
+            todos: [updatedTodo as Todo],
+          });
+        }
+
+        console.log("After editTask:", newColumns);
+        return {
+          board: { columns: newColumns },
+        };
+      });
+
+      toast.success("Task edited successfully", { id: toastId });
+    } catch (error) {
+      console.error("Failed to edit task:", error);
+      toast.error("Failed to edit task");
+    }
   },
 }));

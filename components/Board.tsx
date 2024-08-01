@@ -4,6 +4,9 @@ import { useBoardStore } from "@/store/BoardStore";
 import { useEffect, useRef } from "react";
 import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import Column from "./Column";
+import { TailSpin } from "react-loader-spinner";
+import { useEditModalStore } from "@/store/EditModalStore";
+import EditModal from "./EditModal";
 
 function Board() {
   const [board, getBoard, setBoardState, updateTodoInDB] = useBoardStore(
@@ -14,6 +17,9 @@ function Board() {
       state.updateTodoInDB,
     ]
   );
+
+  const isOpen = useEditModalStore((state) => state.isOpen);
+  
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -93,8 +99,22 @@ function Board() {
     }
   };
 
-  if (!board || !board.columns.size) {
-    return <div>Loading...</div>;
+ 
+  if (!board.columns.size) {
+    return (
+      <div className="flex justify-center mx-auto mt-56">
+        <TailSpin
+          visible={true}
+          height="80"
+          width="80"
+          color="#0055d1"
+          ariaLabel="tail-spin-loading"
+          radius="1"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
+    );
   }
 
   return (
@@ -109,10 +129,12 @@ function Board() {
             {Array.from(board.columns.entries()).map(([id, column], index) => (
               <Column key={id} id={id} todos={column.todos} index={index} />
             ))}
+      {/* {isOpen && <EditModal />} */}
           </div>
         )}
       </Droppable>
     </DragDropContext>
+
   );
 }
 
