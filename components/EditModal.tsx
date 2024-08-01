@@ -104,7 +104,7 @@ function EditModal({ todo }: Props) {
         transition
         as="form"
         onSubmit={handleSubmit}
-        className="fixed inset-0 flex w-screen items-center justify-center bg-black/10 p-4 transition duration-300 ease-out data-[closed]:opacity-0"
+        className="fixed inset-0 flex w-screen items-center justify-center bg-black/10 p-4 transition duration-300 ease-out data-[closed]:opacity-0 overflow-y-auto"
       >
         <DialogPanel className="max-w-lg space-y-4 bg-white p-12 rounded-xl w-full">
           <DialogTitle className="font-bold text-lg text-gray-900 pb-2">
@@ -166,7 +166,7 @@ function EditModal({ todo }: Props) {
               type="submit"
               className="inline-flex justify-center rounded-md bg-blue-100 w-full p-5 border border-transparent text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
             >
-              Update Task
+              Update
             </button>
             <button
               type="button"

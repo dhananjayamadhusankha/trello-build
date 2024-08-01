@@ -1,6 +1,5 @@
 "use client";
 
-import { useBoardStore } from "@/store/BoardStore";
 import getUrl from "@/lib/getUrl";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";

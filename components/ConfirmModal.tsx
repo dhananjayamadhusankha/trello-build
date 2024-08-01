@@ -11,7 +11,7 @@ function ConfirmModal() {
   const taskToDelete = useModalStore((state) => state.taskToDelete);
   const deleteTask = useBoardStore((state) => state.deleteTask);
 
-  if (!taskToDelete) return null; // Ensure task details are available
+  if (!taskToDelete) return null; 
 
   const handleDeleteSubmit = () => {
     const { index, todo, id } = taskToDelete;
@@ -31,8 +31,6 @@ function ConfirmModal() {
         </DialogTitle>
         <p className="text-sm/6 text-black/50">
           This action cannot be undone. This will permanently delete your task!
-          <br />
-          {taskToDelete.todo.title}  {/* Verify the title here */}
         </p>
 
         <div className="flex space-x-4 justify-between">
@@ -41,7 +39,7 @@ function ConfirmModal() {
             onClick={handleDeleteSubmit}
             className="inline-flex justify-center rounded-md bg-red-100 w-full p-5 border border-transparent text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed"
           >
-            Delete Task
+            Delete
           </button>
           <button
             type="button"
