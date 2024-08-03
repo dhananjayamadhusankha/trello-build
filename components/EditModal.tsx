@@ -104,7 +104,7 @@ function EditModal({ todo }: Props) {
         transition
         as="form"
         onSubmit={handleSubmit}
-        className="fixed inset-0 flex w-screen items-center justify-center bg-black/10 p-4 transition duration-300 ease-out data-[closed]:opacity-0 overflow-y-auto"
+        className="fixed inset-0 flex w-screen items-center justify-center bg-black/10 p-4 transition duration-300 ease-out data-[closed]:opacity-0 "
       >
         <DialogPanel className="max-w-lg space-y-4 bg-white p-12 rounded-xl w-full">
           <DialogTitle className="font-bold text-lg text-gray-900 pb-2">
